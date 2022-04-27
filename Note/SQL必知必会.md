@@ -97,3 +97,66 @@ FROM Customers; */
 SELECT ID
 FROM Customers;
 ```
+
+## 第3课 排序检索数据
+主要涉及`ORDER BY`子句。
+
+在不做要求时，一般以表中出现顺序显示，但如果进行过更新或删除，可能会受到影响。
+
+**子句**的概念
+
+`ORDER BY`可以应用于未选择的列，且应该是最后一条子句。
+
+### 按多个列排序
+```sql
+SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY prod_price, prod_name;
+```
+
+### 按列位置排序
+```sql
+SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY 2, 3;
+```
+从1开始，是按照**选中的列**，而非所有列
+
+### 指定排序方向
+```sql
+SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY prod_price DESC, prod_name;
+```
+默认升序排列
+在多个列上降序排列需要对每一列指定`desc`关键字
+
+### 挑战题
+1. 编写SQL语句，从Customers中检索所有的顾客名称(cust_name), 并按从Z到A的顺序显示结果。
+```SQL
+SELECT cust_name
+FROM Customers
+ORDER BY cust_name DESC;
+```
+
+2. 编写SQL语句，从Orders表中检索顾客ID(cust_id)和订单号(order_num)，并先按顾客ID对结果进行排序，再按订单日期倒序排列。
+```sql
+SELECT cust_id, order_num
+FROM Orders
+ORDER BY cust_id, order_date DESC;
+```
+
+3. 显然，我们的虚拟商店更喜欢出售比较贵的物品，而且这类物品有很多。编写SQL语句，显示OrderItems表中的数量和价格(item_price)，并按数量由多到少，价格由高到低排序。
+```sql
+SELECT quantity, item_price
+FROM OrderItems
+ORDER BY quantity DESC, item_price DESC;
+```
+
+4. 下面的SQL语句有问题吗？（尝试在不运行的情况下指出）
+```sql
+SELECT vend_name, -- 多了,
+FROM Vendors
+ORDER vend_name DESC; -- 没有BY
+```
+
