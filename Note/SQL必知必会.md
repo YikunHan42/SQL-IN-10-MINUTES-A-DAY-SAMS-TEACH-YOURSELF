@@ -160,3 +160,64 @@ FROM Vendors
 ORDER vend_name DESC; -- 没有BY
 ```
 
+## 第4课 过滤数据
+	数据应该避免在客户端过滤，否则网络带宽会浪费，且应用性能会受到影响
+	ORDER BY应该在WHERE之后
+
+### `WHERE`子句操作符
+| 操作符     | 说明        |
+| ------- | --------- |
+| \=      | 等于        |
+| <>      | 不等于       |
+| !=      | 不等于       |
+| !<      | 不小于       |
+| !>      | 不大于       |
+| BETWEEN | 在指定的两个值之间 |
+| IS NULL | 为空值       |
+
+#### 不匹配检查
+```sql
+SELECT vend_id, prod_name
+FROM Products
+WHERE vend_id <> 'DL101';
+```
+单引号用于限定字符串
+
+#### 范围值检查
+```sql
+SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price BETWEEN 5 AND 10;
+```
+
+注： 在进行匹配过滤或非匹配过滤时，无法返回$NULL$结果。
+
+### 挑战题
+1.	编写 SQL 语句，从 Products表中检索产品ID（prod_id）和产品名称（prod_name），只返回价格为 9.49 美元的产品。
+```SQL
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_price = 9.49;
+```
+
+2.	编写 SQL 语句，从 Products表中检索产品ID（prod_id）和产品名称（prod_name），只返回价格为 9 美元或更高的产品。
+```SQL
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_price >= 9;
+```
+
+3.	结合第 3 课和第 4 课编写 SQL 语句，从 OrderItems 表中检索出所有不同订单号（order_num），其中包含 100 个或更多的产品。
+```sql
+SELECT DISTINCT order_num
+FROM OrderItems
+WHERE quantity >= 100;
+```
+
+4. 编写 SQL 语句，返回 Products表中所有价格在 3 美元到 6 美元之间的产品的名称（prod_name）和价格（prod_price），然后按价格对结果进行排序。（本题有多种解决方案，我们在下一课再讨论，不过你可以使用目前已学的知识来解决它。）
+```sql
+SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price BETWEEN 3 AND 6
+ORDER BY prod_price;
+```
