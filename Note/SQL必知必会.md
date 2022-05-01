@@ -263,3 +263,99 @@ ORDER BY vend_name
 WHERE vend_country = 'USA' AND vend_state = 'CA';
 ```
 顺序不对，应该先`WHERE`再`ORDER BY`
+
+## 第6课 用通配符进行过滤
+通配符可以创建比较特定数据的搜索模式。
+
+### 百分号通配符
+找出以词Fish起头的产品
+```sql
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE 'Fish%';
+```
+
+注：部分DBMS搜索**区分大小写**
+
+找出名字中含有bean_bag的产品
+```sql
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE '%bean bag%';
+```
+
+找出以F起头、以y结尾的所有产品
+```SQL
+SELECT prod_name
+FROM Products
+WHERE prod_name like 'F%y';
+```
+
+注：
++ **%代表搜索模式种给定位置的0个、1个或多个字符**
++ 部分DBMS多出的字符空间**以空格结尾**，会影响上述检索方式，可修改为`'F%y%'`
++ `LIKE '%'`不会匹配$NULL$
+
+### 下划线(__)通配符
+匹配单个字符
+
+搜索两位英尺数的泰迪熊
+```SQL
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE '__ inch teddy bear';
+```
+
+### 方括号([])通配符
+[]用来指定一个字符集，必须匹配指定位置的一个字符。
+
+找出所有名字不以J或M开头的联系人
+```sql
+SELECT cust_contact
+FROM Customers
+WHERE cust_contact LIKE '[^JM]%'
+ORDER BY cust_contact;
+# 或者在WHERE后添加NOT
+```
+
+### 使用技巧
++ 不要过度使用通配符，优先考虑其他操作符
++ 需要使用通配符时，将其置于搜索靠后的地方
++ 仔细检查通配符位置
+
+### 挑战题
+1.	编写SQL语句，从Products表中检索产品名称(prod_name)和描述(prod_desc)，仅返回描述中包含toy一词的产品。
+```sql
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%';
+```
+
+2.	反过来再来一次。编写SQL语句，从Products表中检索产品名称(prod_name)和描述(prod_desc)，仅返回描述中未出现toy一词的产品。这次，按产品名称对结果进行排序。
+```sql
+SELECT prod_name, prod_desc
+FROM Products
+WHERE NOT prod_desc LIKE '%toy'
+ORDER BY prod_name;
+```
+
+3. 编写SQL语句，从Products表中检索产品名称(prod_name)和描述(prod_desc)，仅返回描述中同时出现toy和carrots的产品。有好几种方法可以执行此操作，但对于这个挑战题，请使用AND和两个LIKE比较。
+```sql
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%' AND prod_desc LIKE '%carrots%';
+```
+
+4. 来个比较棘手的。我没有特别向你展示这个语法，而是想看看你根据目前已学的知识是否可以找到答案。编写 SQL 语句，从 Products 表中检索产品名称（prod_name）和描述（prod_desc），仅返回在描述中以先后顺序同时出现 toy 和 carrots 的产品。提示：只需要用带有三个 % 符号的 LIKE即可。
+```sql
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%carrots%';
+```
+
+
+
+
+
+
+
