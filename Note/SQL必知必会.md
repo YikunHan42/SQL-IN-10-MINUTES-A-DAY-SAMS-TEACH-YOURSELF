@@ -353,6 +353,59 @@ FROM Products
 WHERE prod_desc LIKE '%toy%carrots%';
 ```
 
+## 第7课 创建计算字段
+有时数据表中存储的并非应用程序所需要的，应检索出转换、计算或格式化过的数据。
+
+计算字段是运行时在`SELECT`语句内创建的。
+
+### 拼接
+MySQL：
+```SQL
+SELECT Concat(vend_name, ' (', vend_country, ')')
+FROM Vendors
+ORDER BY vend_name;
+```
+
+注：第二个字符串包含**一个空格**和一个左圆括号
+
+许多数据库会统一成列宽，但**实际上不需要空格**，可以使用`RIRIM()`函数完成
+```SQL
+SELECT RIRIM(vend_name) + ' (' + RIRIM(vend_country) + ')'
+FROM Vendors
+ORDER BY vend_name;
+```
+
+上一个代码片段中`+`可以同义替换为`||`
+
+	TRIM函数
+	RTRIM()去除字符串右面的空格，同理还有LTRIM()和TRIM()
+
+### 别名
+`AS`关键字
+
+### 执行算术运算
+四则运算 `+ - * /`
+
+注：`SELECT`语句后面不接`FROM`时，可以进行检验操作（不需要数据）
+
+### 挑战题
+1.	别名的常见用法是在检索出的结果中重命名表的列字段（为了符合特定的报表要求或客户需求）。编写 SQL 语句，从 Vendors 表中检索vend_id、vend_name、vend_address 和 vend_city，将 vend_name重命名为 vname，将 vend_city重命名为 vcity，将 vend_address重命名为 vaddress。按供应商名称对结果进行排序（可以使用原始名称或新的名称）。
+```sql
+SELECT vend_id,
+	   vend_name as vname,
+	   vend_address as vaddress,
+       vend_city as vcity
+FROM Vendors
+ORDER BY vname;
+```
+
+2. 我们的示例商店正在进行打折促销，所有产品均降价 10%。编写 SQL语句，从 Products表中返回 prod_id、prod_price 和 sale_price。 sale_price 是一个包含促销价格的计算字段。提示：可以乘以 0.9，得到原价的 90%（即 10%的折扣）。
+```sql
+SELECT prod_id, 
+       prod_price,
+       prod_price * 0.9 AS sale_price
+FROM Products;
+```
 
 
 
