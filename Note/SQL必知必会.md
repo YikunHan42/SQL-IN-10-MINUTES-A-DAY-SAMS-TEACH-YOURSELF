@@ -407,8 +407,65 @@ SELECT prod_id,
 FROM Products;
 ```
 
+## 第8课 使用函数处理数据
+SQL函数在多数情况下不是可移植的
 
+### 文本处理函数
+| **函数**      | **说明**         |
+|:-----------:|:--------------:|
+| LEFT\(\)    | 返回字符串左边的字符     |
+| LENGTH\(\)  | 返回字符串的长度       |
+| LOWER\(\)   | 将字符串转换为小写      |
+| LTRIM\(\)   | 去掉字符串左边的空格     |
+| RIGHT\(\)   | 返回字符串右边的字符     |
+| RTRIM\(\)   | 去掉字符串右边的空格     |
+| SUBSTR\(\)  | 提取字符串的组成部分     |
+| SOUNDEX\(\) | 返回字符串的SOUNDEX值 |
+| UPPER\(\)   | 将字符串转换为大写      |
 
+注：`SOUNDEX`是一个将任何文本串转换为描述其语音表示的字母数字模式的算法。
+例：
+```SQL
+SELECT cust_name, cust_contact
+FROM Customers
+WHERE SOUNDEX(cust_contact) = SOUNDEX('Michael Green');
+```
 
+返回值为Michelle Green，发音相仿
 
+### 日期和时间处理函数
+检索2020年的所有订单：
+```sql
+SELECT order_num
+FROM Orders
+WHERE YEAR(order_date) = 2020;
+```
+
+### 数值处理函数
+| **函数**   | **说明**     |
+|:--------:|:----------:|
+| ABS\(\)  | 返回一个数的绝对值  |
+| COS\(\)  | 返回一个角度的余弦  |
+| EXP\(\)  | 返回一个数的指数值  |
+| PI\(\)   | 返回圆周率Π的值   |
+| SIN\(\)  | 返回一个角度的正弦  |
+| SQRT\(\) |  返回一个数的平方根 |
+| TAN\(\)  | 返回一个角度的正切  |
+
+### 挑战题
+1.	我们的商店已经上线了，正在创建顾客账户。所有用户都需要登录名，默认登录名是其名称和所在城市的组合。编写 SQL 语句，返回顾客 ID （cust_id）、顾客名称（customer_name）和登录名（user_login），其中登录名全部为大写字母，并由顾客联系人的前两个字符（cust_ contact）和其所在城市的前三个字符（cust_city）组成。例如，我的登录名是 BEOAK（Ben Forta，居住在 Oak Park）。提示：需要使用函数、拼接和别名。
+```sql
+SELECT cust_id,
+	   cust_name,
+	   CONCAT(UPPER(LEFT(cust_contact, 2), LEFT(cust_city, 3))) AS user_login
+FROM Customers;
+```
+
+2. 编写 SQL 语句，返回 2020 年 1 月的所有订单的订单号（order_num）和订单日期（order_date），并按订单日期排序。你应该能够根据目前已学的知识来解决此问题，但也可以开卷查阅 DBMS 文档。
+```sql
+SELECT order_num, order_date
+FROM ORDERS
+WHERE YEAR(order_date) = 2020 AND MONTH(order_date) = 1
+ORDER BY order_date;
+```
 
