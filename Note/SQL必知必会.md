@@ -469,3 +469,45 @@ WHERE YEAR(order_date) = 2020 AND MONTH(order_date) = 1
 ORDER BY order_date;
 ```
 
+## 第9课 汇总数据
+### 聚集函数
+| **函数**  | **说明**   |
+|:-------:|:--------:|
+| AVG()   | 返回某列的平均值 |
+| COUNT() | 返回某列的行数  |
+| MAX()   | 返回某列的最大值 |
+| MIN()   | 返回某列的最小值 |
+| SUM()   | 返回某列值之和  |
+
+注：
++ `AVG()`只用于单个列，且忽略列值为$NULL$的行
++ `COUNT()`会忽略列值为$NULL$的行，`COUNT(*)`不忽略
++ `MAX`会忽略列值为$NULL$的行，再用与文本数据时返回该列排序后的最后一行
++ `MIN()`会忽略列值为$NULL$的行，再用与文本数据时返回该列排序后的最前一行
++ `SUM()`会忽略列值为$NULL$的行
++ 聚集函数利用标准算术运算符，可以用来执行多个列上的运算
+
+### 聚集不同值
+注：
++ 指定列名，`DISTINCT`只能用于`COUNT()`，不能用于`COUNT(*)`，必须使用列名，不能用于计算或表达式
++ 应用于`MAX()`和`MIN()`没有任何意义
+
+### 挑战题
+1.	编写 SQL 语句，确定已售出产品的总数（使用 OrderItems 中的quantity列）。
+```SQL
+SELECT SUM(quantity) AS total_quantity
+FROM OrderItems;
+```
+
+2.	修改刚刚创建的语句，确定已售出产品项（prod_item）BR01 的总数。
+```sql
+SELECT SUM(quantity) AS total_BR01_product
+FROM OrderItems
+WHERE prod_id = 'BR01';
+```
+3. 编写 SQL 语句，确定 Products 表中价格不超过 10 美元的最贵产品的价格（prod_price）。将计算所得的字段命名为 max_price。
+```sql
+SELECT MAX(prod_price) AS max_price
+FROM Products
+WHERE prod_price <= 10;
+```
