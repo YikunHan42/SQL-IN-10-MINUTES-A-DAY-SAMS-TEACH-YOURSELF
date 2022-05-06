@@ -511,3 +511,77 @@ SELECT MAX(prod_price) AS max_price
 FROM Products
 WHERE prod_price <= 10;
 ```
+
+## 第10课 分组数据
+### 创建分组
+`GROUP BY`子句
+注：
++ 可以包含任意数目的列，因而可以对分组进行嵌套
++ 如果嵌套了分组，数据将在最后指定的分组上进行汇总
++ 列出的每一列都必须是检索列或有效表达式（但不能是聚集函数），`SELECT`中是表达式则`GROUP BY`必须指定相同表达式
++ 一般不允许分组列带有长度可变的数据类型（如文本或备注型字段）
++ $NULL$将作为一个分组返回
++ 必须出现在`WHERE`子句之后，`ORDER BY`子句之前
+
+### 过滤分组
+`HAVING`用于过滤分组，`WHERE`用于过滤行，分别在数据分组后和数据分组前进行过滤
+```sql
+SELECT cust_id, COUNT(*) AS orders
+FROM Orders
+WHERE prod_price >= 4
+GROUP BY cust_id
+HAVING COUNT(*) >= 2;
+```
+
+### 分组和排序
+| **ORDER BY**           | **GROUP BY**                 |
+|:----------------------:|:----------------------------:|
+| 对产生的输出排序               | 对行分组，但输出可能不是分组的顺序            |
+| 任何列都可以使用（甚至非选择的列也可以使用） | 只可能使用选择列或表达式列，而且必须使用每个选择列表达式 |
+| 不一定需要                  | 如果与聚集函数一起使用列（或表达式），则必须使用     |
+一般使用`GROUP BY`子句时，应该也给出`ORDER BY`子句，这是保证数据正确排序的唯一方法
+
+### 挑战题
+1.	OrderItems 表包含每个订单的每个产品。编写 SQL 语句，返回每个订单号（order_num）各有多少行数（order_lines），并按 order_lines对结果进行排序。
+```sql
+SELECT order_num, COUNT(*) AS order_lines
+FROM OrderItems
+GROUP BY order_num
+ORDER BY order_lines;
+```
+
+2.	编写 SQL 语句，返回名为 cheapest_item 的字段，该字段包含每个供应商成本最低的产品（使用 Products 表中的 prod_price），然后从最低成本到最高成本对结果进行排序。
+```sql
+SELECT vend_id, MIN(prod_price) AS cheapest_item
+FROM Products
+GROUP BY prod_id
+ORDER BY cheapest_item;
+```
+
+3. 确定最佳顾客非常重要，请编写SQL语句，返回至少含100项的所有订单的订单号（OrderItems表中的order_num）
+```sql
+SELECT order_num
+FROM OrderItems
+GROUP BY order_num
+HAVING SUM(quantity) >= 100
+ORDER BY order_num;
+```
+
+4.	确定最佳顾客的另一种方式是看他们花了多少钱。编写 SQL 语句，返回总价至少为 1000 的所有订单的订单号（OrderItems 表中的order_num）。提示：需要计算总和（item_price乘以 quantity）。按订单号对结果进行排序。
+```sql
+SELECT order_num
+FROM OrderItems
+GROUP BY order_num
+HAVING SUM(item_price * quantity) >= 1000
+ORDER BY order_num;
+```
+
+5. 下面的 SQL 语句有问题吗？（尝试在不运行的情况下指出。）
+```sql
+SELECT order_num, COUNT(*) AS items
+FROM OrderItems
+GROUP BY items -- GROUP BY order_num
+HAVING COUNT(*) >= 3
+ORDER BY items, order_num;
+```
+必须使用实际列
