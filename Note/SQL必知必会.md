@@ -539,6 +539,7 @@ HAVING COUNT(*) >= 2;
 | 对产生的输出排序               | 对行分组，但输出可能不是分组的顺序            |
 | 任何列都可以使用（甚至非选择的列也可以使用） | 只可能使用选择列或表达式列，而且必须使用每个选择列表达式 |
 | 不一定需要                  | 如果与聚集函数一起使用列（或表达式），则必须使用     |
+
 一般使用`GROUP BY`子句时，应该也给出`ORDER BY`子句，这是保证数据正确排序的唯一方法
 
 ### 挑战题
@@ -585,3 +586,78 @@ HAVING COUNT(*) >= 3
 ORDER BY items, order_num;
 ```
 必须使用实际列
+
+## 第11课 使用子查询
+### 利用子查询进行过滤
+列出订购物品RGAN01的所有顾客：
+```sql
+SELECT cust_id
+FROM Orders
+WHERE order_num IN (SELECT order_num
+					FROM OrderItems
+					WHERE prod_id = 'RGAN01');
+```
+
+注：作为子查询的`SELECT`语句只能查询单个列
+
+### 作为计算字段使用子查询
+显示Customers表中每个顾客的订单总数，订单与相应的顾客ID存储在Orders表中：
+```SQL
+SELECT cust_name.
+	   cust_state,
+	   (SELECT COUNT(*)
+	    FROM Orders
+	    WHERE Orders.cust_id = Customers.cust_id) AS orders
+FROM Customers
+ORDER BY cust_name;
+```
+
+### 挑战题
+1.	使用子查询，返回购买价格为 10 美元或以上产品的顾客列表。你需要使用 OrderItems 表查找匹配的订单号（order_num），然后使用Order表检索这些匹配订单的顾客 ID（cust_id）。
+```sql
+SELECT cust_id 
+FROM Orders
+WHERE order_num IN (SELECT order_num
+					FROM OrderItems
+					WHERE item_price >= 10);
+```
+
+2.	你想知道订购 BR01产品的日期。编写 SQL 语句，使用子查询来确定哪些订单（在 OrderItems中）购买了 prod_id为 BR01的产品，然后从 Orders 表中返回每个产品对应的顾客 ID（cust_id）和订单日期（order_date）。按订购日期对结果进行排序。
+```sql
+SELECT cust_id, order_date
+FROM Orders
+WHERE order_num in (SELECT order_num
+					FROM OrderItems
+					WHERE prod_id = 'BR01')
+ORDER BY order_date;
+```
+
+3.	现在我们让它更具挑战性。在上一个挑战题，返回购买 prod_id 为BR01的产品的所有顾客的电子邮件（Customers表中的 cust_email）。提示：这涉及 SELECT语句，最内层的从 OrderItems表返回 order_num，中间的从 Customers表返回 cust_id。
+```sql
+SELECT cust_email
+FROM Customers
+WHERE cust_id in (SELECT cust_id
+				  FROM Orders
+				  WHERE order_num in(SELECT order_num
+								     FROM OrderItems
+								     WHERE prod_id = 'BR01'));
+```
+
+4.	我们需要一个顾客 ID 列表，其中包含他们已订购的总金额。编写 SQL语句，返回顾客 ID（Orders 表中的 cust_id），并使用子查询返回total_ordered以便返回每个顾客的订单总数。将结果按金额从大到小排序。提示：你之前已经使用 SUM()计算订单总数。
+```sql
+SELECT cust_id,
+	   (SELECT SUM(item_price * quantity)
+	    FROM OrderItems
+	    WHERE OrderItems.order_num = Orders.order_num) AS total_ordered
+FROM Orders
+ORDER BY total_ordered DESC;
+```
+
+5. 再来。编写SQL语句，从Products表中检索所有的产品名称(prod_name)，以及名为quant_sold的计算列，其中包含所售产品的总数(在OrderItems表上使用子查询和SUM(quantity)检索)。
+```sql
+SELECT prod_name,
+	   (SELECT SUM(quantity)
+	   FROM OrderItems
+	   WHERE Products.prod_id = OrderItems.prod_id) AS quant_sold
+FROM Products;
+```
