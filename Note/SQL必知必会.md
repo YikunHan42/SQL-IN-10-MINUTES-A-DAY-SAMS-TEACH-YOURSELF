@@ -661,3 +661,123 @@ SELECT prod_name,
 	   WHERE Products.prod_id = OrderItems.prod_id) AS quant_sold
 FROM Products;
 ```
+
+## 第12课 联结表
+### 联结
+`join`语句
+
+#### 关系表
+避免相同的数据出现多次 -> 关系数据库设计的基础
+把信息分解成多个表，一类数据几个表
+
+注：联结不是**物理实体**，即它在实际的数据库表中并不存在
+
+### 创建联结
+```sql
+SELECT vend_name, prod_name, prod_price
+FROM Vendors, Products
+WHERE Vendors.vend_id = Products.vend_id;
+```
+
+	笛卡尔积：
+	没有联结条件的表关系返回的结果
+	检索出的行数目将是两表行数相乘
+
+#### 内联结
+`inner join`子句，只保留交集
+```sql
+SELECT vend_name, prod_name, prod_price
+FROM Vendors
+INNER JOIN Products ON Vendors.vend_id = Products.vend_id;
+```
+
+#### 联结多个表
+```sql
+SELECT prod_name, vend_name, prod_price, quantity
+FROM OrderItems, Products, Vendors
+WHERE Products.vend_id = Vendors.vend_id
+	AND OrderItems.prod_id = Products.prod_id
+	AND order_num = 20007;
+```
+
+非常耗费资源
+子查询可以替换为联结的相同查询
+
+### 挑战题
+1.	编写 SQL 语句，返回 Customers 表中的顾客名称（cust_name）和Orders 表中的相关订单号（order_num），并按顾客名称再按订单号对结果进行排序。实际上是尝试两次，一次使用简单的等联结语法，一次使用 INNER JOIN。
+```sql
+-- 等联结
+SELECT cust_name, order_num
+FROM Customers, Orders
+WHERE Customers.cust_id = Orders.cust_id
+ORDER BY cust_name, order_num;
+-- Inner Join
+SELECT cust_name, order_num
+FROM Customers
+INNER JOIN Orders ON Customers.cust_id = Orders.cust_id
+ORDER BY cust_name, order_num;
+```
+
+2. 我们来让上一题变得更有用些。除了返回顾客名称和订单号，添加第三列 OrderTotal，其中包含每个订单的总价。有两种方法可以执行此操作：使用 OrderItems 表的子查询来创建 OrderTotal 列，或者将 OrderItems表与现有表联结并使用聚合函数。提示：请注意需要使用完全限定列名的地方。
+```sql
+-- 子查询
+SELECT cust_name, 
+	   order_num,
+	   (SELECT SUM(item_price * quantity)
+	    FROM OrderItems
+	    WHERE Orders.order_num = OrderItems.order_num) AS OrderTotal
+FROM Customers, Orders
+WHERE Customers.cust_id = Orders.cust_id
+ORDER BY cust_name, order_num;
+-- 联结
+SELECT cust_name, 
+	   Orders.order_num,
+	   SUM(item_price * quantity) AS OrderTotal
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+AND Orders.order_num = OrderItems.order_num
+GROUP BY cust_name, Orders.order_num
+ORDER BY cust_name, Orders.order_num;
+-- 注意限定
+```
+
+3.	我们重新看一下第 11 课的挑战题 2。编写 SQL 语句，检索订购产品BR01 的日期，这一次使用联结和简单的等联结语法。输出应该与第11 课的输出相同。
+```sql
+SELECT cust_id, order_date
+FROM Orders, OrderItems
+WHERE Orders.order_num = OrderItems.order_num
+AND prod_id = 'BR01'
+ORDER BY order_date;
+```
+
+4.	很有趣，我们再试一次。重新创建为第 11 课挑战题 3 编写的 SQL 语句，这次使用 ANSI 的 INNER JOIN 语法。在之前编写的代码中使用了两个嵌套的子查询。要重新创建它，需要两个 INNER JOIN语句，每个语句的格式类似于本课讲到的 INNER JOIN示例，而且不要忘记WHERE子句可以通过 prod_id进行过滤。
+```sql
+SELECT cust_email
+FROM Customers INNER JOIN Orders
+ON Customers.cust_id = Orders.cust_id
+INNER JOIN OrderItems
+ON Orders.order_num = OrderItems.order_num
+WHERE prod_id = 'BR01';
+```
+
+5. 再让事情变得更加有趣些，我们将混合使用联结、聚合函数和分组。准备好了吗？回到第 10 课，当时的挑战是要求查找值等于或大于 1000的所有订单号。这些结果很有用，但更有用的是订单数量至少达到这个数的顾客名称。因此，编写 SQL 语句，使用联结从 Customers表返回顾客名称（cust_name），并从 OrderItems表返回所有订单的总价。提示：要联结这些表，还需要包括 Orders 表（因为 Customers 表与 OrderItems 表不直接相关，Customers 表与 Orders 表相关，而Orders表与 OrderItems表相关）。不要忘记 GROUP BY和 HAVING，并按顾客名称对结果进行排序。你可以使用简单的等联结或 ANSI 的INNER JOIN 语法。或者，如果你很勇敢，请尝试使用两种方式编写。 
+```SQL
+-- 等联结
+SELECT cust_name
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+AND Orders.order_num = OrderItems.order_num
+GROUP BY cust_name HAVING SUM(item_price * quantity) >= 1000
+ORDER BY cust_name;
+-- Inner Join
+SELECT cust_name
+FROM Customers
+INNER JOIN Orders ON Customers.cust_id = Orders.cust_id
+INNER JOIN OrderItems ON Orders.order_num = OrderItems.order_num
+GROUP BY cust_name HAVING SUM(item_price * quantity) >= 1000
+ORDER BY cust_name;
+```
+
+
+
+
